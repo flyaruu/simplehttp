@@ -3,8 +3,7 @@ name = "simplehttp"
 version = "0.0.1"
 edition = "2021"
 license = "Apache-2.0"
-description = "Simple (and very immature) sync http client. Intended to have multiple implementations abstracting away API differences
-between platforms"
+description = "Simple (and very immature) sync http client. Intended to have multiple implementations abstracting away API differences between platforms"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
