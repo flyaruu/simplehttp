@@ -1,0 +1,6 @@
+{
+    "rust-analyzer.cargo.features": [
+        "spin"
+    ],
+    "rust-analyzer.cargo.target": "wasm32-wasi"    
+}
