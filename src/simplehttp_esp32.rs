@@ -1,22 +1,24 @@
 use std::str::from_utf8;
 use embedded_svc::http::{client::*, Headers};
-use embedded_svc::io::{Write, Read};
+use embedded_svc::io::Write;
 use esp_idf_svc::http::client::*;
 
-pub fn new_esp_http()->Box<dyn RedPandaHttpClient> {
-    Box::new(EspRedPandaHttpClient::new().unwrap())
+use crate::simplehttp::{SimpleHttpClient, SimpleHttpError};
+
+pub fn new_esp_http()->Box<dyn SimpleHttpClient> {
+    Box::new(EspSimpleHttpClient::new().unwrap())
 }
 
-pub struct EspRedPandaHttpClient {
+pub struct EspSimpleHttpClient {
     client: Client<EspHttpConnection>
 }
-impl EspRedPandaHttpClient {
-    pub fn new()->Result<EspRedPandaHttpClient,SimpleHttpError> {
+impl EspSimpleHttpClient {
+    pub fn new()->Result<EspSimpleHttpClient,SimpleHttpError> {
         let client = Client::wrap(EspHttpConnection::new(&Configuration {
             crt_bundle_attach: Some(esp_idf_sys::esp_crt_bundle_attach),
             ..Default::default()
         }).map_err(|_| SimpleHttpError("Error creating http client".to_owned()))?);
-        Ok(EspRedPandaHttpClient{client})
+        Ok(EspSimpleHttpClient{client})
     }
 
     pub fn read_response(mut response: Response<&mut EspHttpConnection>)->Result<Vec<u8>,SimpleHttpError> {
@@ -40,7 +42,7 @@ impl EspRedPandaHttpClient {
     }
 }
 
-impl RedPandaHttpClient for EspRedPandaHttpClient {
+impl SimpleHttpClient for EspSimpleHttpClient {
     fn get(&mut self, url: &str, input_headers: &Vec<(String, String)>)->Result<Vec<u8>, SimpleHttpError> {
         // println!("Getting url: {}",url);
         let mut headers = input_headers.clone();
@@ -59,8 +61,8 @@ impl RedPandaHttpClient for EspRedPandaHttpClient {
         if url.contains("localhost") {
             println!("\n\n!!!! Do you really want to use localhost from esp? I doubt that'n'n")
         }
-        let a = from_utf8(&data)
-            .map_err(|_| SimpleHttpError("Error parsing body".to_owned()))?;
+        // let a = from_utf8(&data)
+        //     .map_err(|_| SimpleHttpError("Error parsing body".to_owned()))?;
         // println!("Body: {}",a);
         let length_string = format!("{}",data.len());
         let mut headers = input_headers.clone();
