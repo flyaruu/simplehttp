@@ -1,6 +1,13 @@
 {
     "rust-analyzer.cargo.features": [
-        "core",
-        "reqwest"
-    ]  
+        "esp32"
+    ],
+    "rust-analyzer.cargo.target": "riscv32imc-esp-espidf",
+    "rust-analyzer.check.extraArgs": [
+        "-Zbuild-std=std,panic_abort"
+    ],
+    "rust-analyzer.linkedProjects": [
+        "./Cargo.toml"
+    ]
+    
 }

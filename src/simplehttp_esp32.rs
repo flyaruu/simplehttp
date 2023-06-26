@@ -1,13 +1,8 @@
-
-
 use std::str::from_utf8;
-
 use embedded_svc::http::{client::*, Headers};
 use embedded_svc::io::{Write, Read};
 use esp_idf_svc::http::client::*;
 
-use crate::panda_client::{RedPandaHttpClient, SimpleHttpError};
-use crate::SimpleHttpError;
 pub fn new_esp_http()->Box<dyn RedPandaHttpClient> {
     Box::new(EspRedPandaHttpClient::new().unwrap())
 }
@@ -15,7 +10,6 @@ pub fn new_esp_http()->Box<dyn RedPandaHttpClient> {
 pub struct EspRedPandaHttpClient {
     client: Client<EspHttpConnection>
 }
-
 impl EspRedPandaHttpClient {
     pub fn new()->Result<EspRedPandaHttpClient,SimpleHttpError> {
         let client = Client::wrap(EspHttpConnection::new(&Configuration {
@@ -79,22 +73,6 @@ impl RedPandaHttpClient for EspRedPandaHttpClient {
         // post_request.flush()
         //     .map_err(|_| SimpleHttpError("Error flushing url".to_owned()))?;
         post_request.write_all(&data).map_err(|e| SimpleHttpError(format!("Error posting url: {:?}",e)))?;
-        // loop {
-        //     match post_request.write(&data) {
-        //         Ok(write_count) => {
-        //             println!("Wrote: {} bytes",write_count);
-        //             post_request.flush().unwrap();
-        //             break;
-        //         },
-        //         Err(e) => return {
-        //             println!("ERror: {}",e);
-        //             Err(SimpleHttpError("Error writing post".to_owned()))
-        //         },
-        //     }
-        // }
-        // post_request.write(&data)
-        //     .map_err(|_| SimpleHttpError("Error getting url".to_owned()))?;
-        // println!("Sent body");
 
         let post_response = post_request.submit()
                 .map_err(|_| SimpleHttpError("Error sending data".to_owned()))?;
