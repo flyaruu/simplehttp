@@ -9,11 +9,11 @@ pub struct SimpleHttpClientReqwest {
 
 impl SimpleHttpClientReqwest {
     pub fn new_reqwest()->Result<Box<dyn SimpleHttpClient>,SimpleHttpError> {
-        let http_client = Client::builder().build().map_err(|e| SimpleHttpError::new(&format!("Error initializing: {}",e)))?;
+        let http_client = Client::builder().build().map_err(|e| SimpleHttpError::new_with_cause("Error initializing",Box::new(e)))?;
         Ok(Box::new(SimpleHttpClientReqwest { client: http_client}))
     }
 
-    pub fn prepare_request(&self, url: &str, headers: &Vec<(String, String)>, body: Option<Vec<u8>>, method: reqwest::Method)->Result<reqwest::blocking::Request, SimpleHttpError> {
+    pub fn prepare_request(&self, url: &str, headers: &[(String, String)], body: Option<Vec<u8>>, method: reqwest::Method)->Result<reqwest::blocking::Request, SimpleHttpError> {
         let mut header_map: HeaderMap = HeaderMap::new();
         for (key,value) in headers {
             header_map.append(HeaderName::from_bytes(key.as_bytes()).unwrap(), HeaderValue::from_bytes(value.as_bytes()).unwrap());
@@ -26,19 +26,20 @@ impl SimpleHttpClientReqwest {
             Some(b) => builder.body(b),
             None => builder,
         };
-        builder.build().map_err(|_| SimpleHttpError::new("Error creating request"))
+        builder.build().map_err(|e| SimpleHttpError::new_with_cause("Error creating request",Box::new(e)))
     }
 
 }
+
 impl SimpleHttpClient for SimpleHttpClientReqwest {
-    fn post(&mut self, url: &str, headers: &Vec<(String, String)>, body: Vec<u8>)->Result<Vec<u8>,SimpleHttpError> {
+    fn post(&mut self, url: &str, headers: &[(String, String)], body: Vec<u8>)->Result<Vec<u8>,SimpleHttpError> {
         let request = self.prepare_request(url, &headers, Some(body), Method::POST)?;
         let response = self.client.execute(request)
-            .map_err(|_| SimpleHttpError::new("Error sending post"))?;
+            .map_err(|e| SimpleHttpError::new_with_cause("Error sending post",Box::new(e)))?;
         
         let response_status = response.status();
         let response_body = response.bytes()
-            .map_err(|_| SimpleHttpError::new("Error decoding post response"))?
+            .map_err(|e| SimpleHttpError::new_with_cause("Error decoding post response",Box::new(e)))?
             .to_vec();
         if !response_status.is_success() {
             return Err(SimpleHttpError::new(&format!("Error status code: {}\n body: {}",response_status.as_u16(), from_utf8(&response_body).unwrap())))
@@ -47,12 +48,12 @@ impl SimpleHttpClient for SimpleHttpClientReqwest {
 
     }
 
-    fn get(&mut self, url: &str, headers: &Vec<(String, String)>)->Result<Vec<u8>, SimpleHttpError> {
+    fn get(&mut self, url: &str, headers: &[(String, String)])->Result<Vec<u8>, SimpleHttpError> {
         let request = self.prepare_request(url, &headers, None, Method::GET)?;
         let result = self.client.execute(request)
-            .map_err(|_| SimpleHttpError::new("Error sending get"))?
+            .map_err(|e| SimpleHttpError::new_with_cause("Error sending get",Box::new(e)))?
             .bytes()
-            .map_err(|_| SimpleHttpError::new("Error decoding get response"))?
+            .map_err(|e| SimpleHttpError::new_with_cause("Error decoding get response",Box::new(e)))?
             .to_vec();
         Ok(result)
     }

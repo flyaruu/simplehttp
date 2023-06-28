@@ -3,47 +3,43 @@ use std::{error::Error, fmt::{Display, Debug}};
 #[derive(Debug)]
 pub struct SimpleHttpError {
     message: String,
-    parent: Option<Box<dyn Error>>,
+    parent: Option<Box<dyn Error + 'static>>,
 }
 
 impl SimpleHttpError {
     pub fn new(message: &str)->Self {
         SimpleHttpError { message: message.to_owned(), parent: None }
     }
-}
-pub trait SimpleHttpClient {
-    // fn post(&mut self,  url: &str, headers: &mut Vec<(&str, &str)>, data: Vec<u8>)->Result<Vec<u8>,RedPandaError>;
-    fn post(&mut self, url: &str, headers: &Vec<(String, String)>, data: Vec<u8>)->Result<Vec<u8>,SimpleHttpError>;
 
-    fn get(&mut self, url: &str, headers: &Vec<(String, String)>)->Result<Vec<u8>, SimpleHttpError>;
+    pub fn new_with_cause(message: &str, cause: Box<(dyn Error + 'static)>)->Self {
+        SimpleHttpError { message: message.to_owned(), parent: Some(cause) }
+    }
 }
 
 impl Display for SimpleHttpError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(&format!("Http Error {}",self.message))?;
-        match &self.parent {
-            Some(parent) => {
-                std::fmt::Display::fmt(&parent, f)?;
-
-            }
-            None => {
-                ();
-            }
-        }
-        Ok(())
+        f.write_str(&self.message.as_str())
     }
 }
+
 impl Error for SimpleHttpError {
     fn source(&self) -> Option<&(dyn Error + 'static)> {
-        // self.parent.map(|f|(f.as_ref()))
         self.parent.as_deref()
     }
 
-
+    fn description(&self) -> &str {
+        "description() is deprecated; use Display"
+    }
 
     fn cause(&self) -> Option<&dyn Error> {
         self.source()
     }
 
-    // fn provide<'a>(&'a self, demand: &mut std::any::Demand<'a>) {}
 }
+pub trait SimpleHttpClient {
+    // fn post(&mut self,  url: &str, headers: &mut Vec<(&str, &str)>, data: Vec<u8>)->Result<Vec<u8>,RedPandaError>;
+    fn post(&mut self, url: &str, headers: &[(String, String)], data: Vec<u8>)->Result<Vec<u8>,SimpleHttpError>;
+
+    fn get(&mut self, url: &str, headers: &[(String, String)])->Result<Vec<u8>, SimpleHttpError>;
+}
+
