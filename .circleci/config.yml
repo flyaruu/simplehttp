@@ -11,5 +11,5 @@ jobs:
       - run: cargo install espup
       - run: cargo --list
       - run: espup install
-      - run: cargo install riscv32imc-esp-espidf
+#      - run: cargo install riscv32imc-esp-espidf
       - run: cargo build --target riscv32imc-esp-espidf --features esp32
