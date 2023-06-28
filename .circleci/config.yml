@@ -9,6 +9,7 @@ jobs:
       - run: rustup target add wasm32-wasi
       - run: cargo build --features spin --target wasm32-wasi
       - run: cargo install espup
+      - run: rustup default nightly
       - run: cargo --list
       - run: espup install
 #      - run: cargo install riscv32imc-esp-espidf
