@@ -66,7 +66,7 @@ impl SimpleHttpClient for EspSimpleHttpClient {
         let mut post_request = self.client
             .post(url,&collected)
             .map_err(|e| SimpleHttpError::new_with_cause("Error posting url",Box::new(e)))?;
-        post_request.write_all(&data).map_err(|e| SimpleHttpError::new_with_cause(&format!("Error posting url: {:?}",url,Box::new(e))))?;
+        post_request.write_all(&data).map_err(|e| SimpleHttpError::new_with_cause(&format!("Error posting url: {:?}",url),Box::new(e)))?;
         let post_response = post_request.submit()
                 .map_err(|e| SimpleHttpError::new_with_cause("Error sending data",Box::new(e)))?;
         Self::read_response(post_response)     
