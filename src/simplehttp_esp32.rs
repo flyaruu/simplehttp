@@ -17,12 +17,12 @@ impl EspSimpleHttpClient {
         let client = Client::wrap(EspHttpConnection::new(&Configuration {
             crt_bundle_attach: Some(esp_idf_sys::esp_crt_bundle_attach),
             ..Default::default()
-        }).map_err(|_| SimpleHttpError("Error creating http client".to_owned()))?);
+        }).map_err(|_| SimpleHttpError::new("Error creating http client"))?);
         Ok(EspSimpleHttpClient{client})
     }
 
     pub fn read_response(mut response: Response<&mut EspHttpConnection>)->Result<Vec<u8>,SimpleHttpError> {
-        let size = response.content_len().ok_or(SimpleHttpError("Error reading content".to_owned()))? as usize;
+        let size = response.content_len().ok_or(SimpleHttpError::new("Error reading content"))? as usize;
         let mut body = [0_u8; 3048];
         let mut output_buffer: Vec<u8> = Vec::with_capacity(size);
         loop {
@@ -36,7 +36,7 @@ impl EspSimpleHttpClient {
                         return Ok(output_buffer);
                     }
                 },
-                Err(_) => return Err(SimpleHttpError("Error reading content:".to_owned())),
+                Err(_) => return Err(SimpleHttpError::new("Error reading content")),
             };
         }
     }
@@ -50,9 +50,9 @@ impl SimpleHttpClient for EspSimpleHttpClient {
         let collected_headers: Vec<(&str,&str)> = headers.iter().map(|(k,v)|(k.as_ref(),v.as_ref())).collect();
         let response = self.client
             .request(Method::Get,&url,&collected_headers)
-            .map_err(|e| SimpleHttpError(format!("Error createing  get: {}",e).to_owned()))?
+            .map_err(|e| SimpleHttpError::new(&format!("Error createing  get: {}",e)))?
             .submit()
-            .map_err(|e| SimpleHttpError(format!("Error connecting: {}",e).to_owned()))?;
+            .map_err(|e| SimpleHttpError::new(&format!("Error connecting: {}",e)))?;
         Self::read_response(response)
     }
 
@@ -71,13 +71,13 @@ impl SimpleHttpClient for EspSimpleHttpClient {
         // println!("Headers: {:?}",collected);
         let mut post_request = self.client
             .post(url,&collected)
-            .map_err(|e| SimpleHttpError(format!("Error posting url: {:?}",e)))?;
+            .map_err(|e| SimpleHttpError::new(&format!("Error posting url: {:?}",e)))?;
         // post_request.flush()
         //     .map_err(|_| SimpleHttpError("Error flushing url".to_owned()))?;
-        post_request.write_all(&data).map_err(|e| SimpleHttpError(format!("Error posting url: {:?}",e)))?;
+        post_request.write_all(&data).map_err(|e| SimpleHttpError::new(&format!("Error posting url: {:?}",e)))?;
 
         let post_response = post_request.submit()
-                .map_err(|_| SimpleHttpError("Error sending data".to_owned()))?;
+                .map_err(|_| SimpleHttpError::new("Error sending data"))?;
         Self::read_response(post_response)     
     }
 }

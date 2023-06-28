@@ -9,7 +9,7 @@ pub struct SimpleHttpClientReqwest {
 
 impl SimpleHttpClientReqwest {
     pub fn new_reqwest()->Result<Box<dyn SimpleHttpClient>,SimpleHttpError> {
-        let http_client = Client::builder().build().map_err(|e| SimpleHttpError(format!("Error initializing: {}",e)))?;
+        let http_client = Client::builder().build().map_err(|e| SimpleHttpError::new(&format!("Error initializing: {}",e)))?;
         Ok(Box::new(SimpleHttpClientReqwest { client: http_client}))
     }
 
@@ -26,7 +26,7 @@ impl SimpleHttpClientReqwest {
             Some(b) => builder.body(b),
             None => builder,
         };
-        builder.build().map_err(|_| SimpleHttpError("Error creating request".to_owned()))
+        builder.build().map_err(|_| SimpleHttpError::new("Error creating request"))
     }
 
 }
@@ -34,14 +34,14 @@ impl SimpleHttpClient for SimpleHttpClientReqwest {
     fn post(&mut self, url: &str, headers: &Vec<(String, String)>, body: Vec<u8>)->Result<Vec<u8>,SimpleHttpError> {
         let request = self.prepare_request(url, &headers, Some(body), Method::POST)?;
         let response = self.client.execute(request)
-            .map_err(|_| SimpleHttpError("Error sending post".to_owned()))?;
+            .map_err(|_| SimpleHttpError::new("Error sending post"))?;
         
         let response_status = response.status();
         let response_body = response.bytes()
-            .map_err(|_| SimpleHttpError("Error decoding post response".to_owned()))?
+            .map_err(|_| SimpleHttpError::new("Error decoding post response"))?
             .to_vec();
         if !response_status.is_success() {
-            return Err(SimpleHttpError(format!("Error status code: {}\n body: {}",response_status.as_u16(), from_utf8(&response_body).unwrap())))
+            return Err(SimpleHttpError::new(&format!("Error status code: {}\n body: {}",response_status.as_u16(), from_utf8(&response_body).unwrap())))
         }            
         Ok(response_body)        
 
@@ -50,14 +50,13 @@ impl SimpleHttpClient for SimpleHttpClientReqwest {
     fn get(&mut self, url: &str, headers: &Vec<(String, String)>)->Result<Vec<u8>, SimpleHttpError> {
         let request = self.prepare_request(url, &headers, None, Method::GET)?;
         let result = self.client.execute(request)
-            .map_err(|_| SimpleHttpError("Error sending get".to_owned()))?
+            .map_err(|_| SimpleHttpError::new("Error sending get"))?
             .bytes()
-            .map_err(|_| SimpleHttpError("Error decoding get response".to_owned()))?
+            .map_err(|_| SimpleHttpError::new("Error decoding get response"))?
             .to_vec();
         Ok(result)
     }
 }
-
 
 
 #[cfg(test)]
@@ -66,7 +65,7 @@ mod test {
 
     #[test]
     fn test1() {
-        let mut client = SimpleHttpClientReqwest::new_reqwest();
+        let mut client = SimpleHttpClientReqwest::new_reqwest().unwrap();
         let res = client.get("http://localhost:8500", &vec![("Accept".to_owned(),"something".to_owned())]);
         assert!(res.is_err());
         println!("ok: {:?}",res);

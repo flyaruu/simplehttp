@@ -20,7 +20,7 @@ impl SimpleHttpClientSpin {
         match body  {
             Some(b) => request_builder.body( Some(bytes::Bytes::from(b))),
             None => request_builder.body(None)
-        }.map_err(|_| SimpleHttpError("Error sending body".to_owned()))
+        }.map_err(|_| SimpleHttpError::new("Error sending body"))
     }
 }
 impl SimpleHttpClient for SimpleHttpClientSpin {
@@ -39,7 +39,7 @@ impl SimpleHttpClient for SimpleHttpClientSpin {
     fn get(&mut self, uri: &str, headers: &Vec<(String, String)>)->Result<Vec<u8>, SimpleHttpError> {
         let request = SimpleHttpClientSpin::prepare_request(uri, headers, None, Method::GET)?;
         let mut res = spin_sdk::http::send(request)
-            .map_err(|_| SimpleHttpError("Error calling get".to_owned()))
+            .map_err(|_| SimpleHttpError::new("Error calling get"))
         .unwrap();
         let result = res.body_mut().take().unwrap();
         Ok(result.to_vec())
