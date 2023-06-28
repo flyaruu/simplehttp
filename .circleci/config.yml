@@ -10,7 +10,8 @@ jobs:
       - run: rustup target add wasm32-wasi
       - run: cargo build --features spin --target wasm32-wasi
       # ESP32C3:
-      - run: sudo apt install python3.10-venv
+      - run: sudo apt update
+      - run: sudo apt install python3
       - run: cargo install espup
       - run: rustup default nightly
       - run: cargo --list
