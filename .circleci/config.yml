@@ -6,6 +6,7 @@ jobs:
       - checkout
       - run: cargo --version
       - run: cargo build --features reqwest
+      - run: rustup target add wasm32-wasi
       - run: cargo build --features spin --target wasm32-wasi
       - run: cargo install espup
       - run: cargo espup install
