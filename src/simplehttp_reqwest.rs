@@ -13,7 +13,7 @@ impl SimpleHttpClientReqwest {
         Ok(Box::new(SimpleHttpClientReqwest { client: http_client}))
     }
 
-    pub fn prepare_request(&self, url: &str, headers: &[(&str, &str)], body: Option<Vec<u8>>, method: reqwest::Method)->Result<reqwest::blocking::Request, SimpleHttpError> {
+    pub fn prepare_request(&self, url: &str, headers: &[(&str, &str)], body: Option<&[u8]>, method: reqwest::Method)->Result<reqwest::blocking::Request, SimpleHttpError> {
         let mut header_map: HeaderMap = HeaderMap::new();
         for (key,value) in headers {
             header_map.append(HeaderName::from_bytes(key.as_bytes()).unwrap(), HeaderValue::from_bytes(value.as_bytes()).unwrap());
@@ -23,7 +23,7 @@ impl SimpleHttpClientReqwest {
             .headers(header_map);
 
         let builder = match body {
-            Some(b) => builder.body(b),
+            Some(b) => builder.body(b.to_vec()),
             None => builder,
         };
         builder.build().map_err(|e| SimpleHttpError::new_with_cause("Error creating request",Box::new(e)))
