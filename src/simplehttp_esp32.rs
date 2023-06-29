@@ -42,10 +42,10 @@ impl EspSimpleHttpClient {
 }
 
 impl SimpleHttpClient for EspSimpleHttpClient {
-    fn get(&mut self, url: &str, input_headers: &[(String, String)])->Result<Vec<u8>, SimpleHttpError> {
+    fn get(&mut self, url: &str, input_headers: &[(&str, &str)])->Result<Vec<u8>, SimpleHttpError> {
         // println!("Getting url: {}",url);
         let mut headers = input_headers.to_vec();
-        headers.push(("Accept".to_owned(), "application/vnd.kafka.binary.v2+json".to_owned()));        
+        headers.push(("Accept", "application/vnd.kafka.binary.v2+json"));        
         let collected_headers: Vec<(&str,&str)> = headers.iter().map(|(k,v)|(k.as_ref(),v.as_ref())).collect();
         let response = self.client
             .request(Method::Get,&url,&collected_headers)
@@ -55,13 +55,13 @@ impl SimpleHttpClient for EspSimpleHttpClient {
         Self::read_response(response)
     }
 
-    fn post<'a>(&'a mut self, url: &str, input_headers: &[(String, String)], data: Vec<u8>)->Result<Vec<u8>,SimpleHttpError> {
+    fn post<'a>(&'a mut self, url: &str, input_headers: &[(&str, &str)], data: Vec<u8>)->Result<Vec<u8>,SimpleHttpError> {
         if url.contains("localhost") {
             println!("\n\n!!!! Do you really want to use localhost from esp? I doubt that'n'n")
         }
         let length_string = format!("{}",data.len());
         let mut headers = input_headers.to_vec();
-        headers.push(("Content-Length".to_owned(),length_string));        
+        headers.push(("Content-Length",&length_string));        
         let collected: Vec<(&str,&str)> = headers.iter().map(|(k,v)|(k.as_ref(),v.as_ref())).collect();
         let mut post_request = self.client
             .post(url,&collected)

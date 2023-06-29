@@ -13,7 +13,7 @@ impl SimpleHttpClientReqwest {
         Ok(Box::new(SimpleHttpClientReqwest { client: http_client}))
     }
 
-    pub fn prepare_request(&self, url: &str, headers: &[(String, String)], body: Option<Vec<u8>>, method: reqwest::Method)->Result<reqwest::blocking::Request, SimpleHttpError> {
+    pub fn prepare_request(&self, url: &str, headers: &[(&str, &str)], body: Option<Vec<u8>>, method: reqwest::Method)->Result<reqwest::blocking::Request, SimpleHttpError> {
         let mut header_map: HeaderMap = HeaderMap::new();
         for (key,value) in headers {
             header_map.append(HeaderName::from_bytes(key.as_bytes()).unwrap(), HeaderValue::from_bytes(value.as_bytes()).unwrap());
@@ -28,12 +28,11 @@ impl SimpleHttpClientReqwest {
         };
         builder.build().map_err(|e| SimpleHttpError::new_with_cause("Error creating request",Box::new(e)))
     }
-
 }
 
 impl SimpleHttpClient for SimpleHttpClientReqwest {
-    fn post(&mut self, url: &str, headers: &[(String, String)], body: Vec<u8>)->Result<Vec<u8>,SimpleHttpError> {
-        let request = self.prepare_request(url, &headers, Some(body), Method::POST)?;
+    fn post(&mut self, url: &str, headers: &[(&str, &str)], body: Vec<u8>)->Result<Vec<u8>,SimpleHttpError> {
+        let request = self.prepare_request(url, headers, Some(body), Method::POST)?;
         let response = self.client.execute(request)
             .map_err(|e| SimpleHttpError::new_with_cause("Error sending post",Box::new(e)))?;
         
@@ -48,7 +47,7 @@ impl SimpleHttpClient for SimpleHttpClientReqwest {
 
     }
 
-    fn get(&mut self, url: &str, headers: &[(String, String)])->Result<Vec<u8>, SimpleHttpError> {
+    fn get(&mut self, url: &str, headers: &[(&str, &str)])->Result<Vec<u8>, SimpleHttpError> {
         let request = self.prepare_request(url, &headers, None, Method::GET)?;
         let result = self.client.execute(request)
             .map_err(|e| SimpleHttpError::new_with_cause("Error sending get",Box::new(e)))?
@@ -67,7 +66,7 @@ mod test {
     #[test]
     fn test1() {
         let mut client = SimpleHttpClientReqwest::new_reqwest().unwrap();
-        let res = client.get("http://localhost:8500", &vec![("Accept".to_owned(),"something".to_owned())]);
+        let res = client.get("http://localhost:8500", &vec![("Accept","something")]);
         assert!(res.is_err());
         println!("ok: {:?}",res);
     }
