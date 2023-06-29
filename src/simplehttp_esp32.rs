@@ -55,9 +55,9 @@ impl SimpleHttpClient for EspSimpleHttpClient {
         Self::read_response(response)
     }
 
-    fn post<'a>(&'a mut self, url: &str, input_headers: &[(&str, &str)], data: Vec<u8>)->Result<Vec<u8>,SimpleHttpError> {
+    fn post<'a>(&'a mut self, url: &str, input_headers: &[(&str, &str)], data: &[u8])->Result<Vec<u8>,SimpleHttpError> {
         if url.contains("localhost") {
-            println!("\n\n!!!! Do you really want to use localhost from esp? I doubt that'n'n")
+            println!("\n\n!!!! Do you really want to use localhost from esp? I doubt that.")
         }
         let length_string = format!("{}",data.len());
         let mut headers = input_headers.to_vec();

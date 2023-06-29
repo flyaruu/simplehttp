@@ -31,7 +31,7 @@ impl SimpleHttpClientReqwest {
 }
 
 impl SimpleHttpClient for SimpleHttpClientReqwest {
-    fn post(&mut self, url: &str, headers: &[(&str, &str)], body: Vec<u8>)->Result<Vec<u8>,SimpleHttpError> {
+    fn post(&mut self, url: &str, headers: &[(&str, &str)], body: &[u8])->Result<Vec<u8>,SimpleHttpError> {
         let request = self.prepare_request(url, headers, Some(body), Method::POST)?;
         let response = self.client.execute(request)
             .map_err(|e| SimpleHttpError::new_with_cause("Error sending post",Box::new(e)))?;
