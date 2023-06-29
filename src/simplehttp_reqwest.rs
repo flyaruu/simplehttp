@@ -44,7 +44,36 @@ impl SimpleHttpClient for SimpleHttpClientReqwest {
             return Err(SimpleHttpError::new(&format!("Error status code: {}\n body: {}",response_status.as_u16(), from_utf8(&response_body).unwrap())))
         }            
         Ok(response_body)        
+    }
 
+    fn patch(&mut self, url: &str, headers: &[(&str, &str)], body: &[u8])->Result<Vec<u8>,SimpleHttpError> {
+        let request = self.prepare_request(url, headers, Some(body), Method::PATCH)?;
+        let response = self.client.execute(request)
+            .map_err(|e| SimpleHttpError::new_with_cause("Error sending patch",Box::new(e)))?;
+        
+        let response_status = response.status();
+        let response_body = response.bytes()
+            .map_err(|e| SimpleHttpError::new_with_cause("Error decoding patch response",Box::new(e)))?
+            .to_vec();
+        if !response_status.is_success() {
+            return Err(SimpleHttpError::new(&format!("Error status code: {}\n body: {}",response_status.as_u16(), from_utf8(&response_body).unwrap())))
+        }            
+        Ok(response_body)        
+    }
+
+    fn put(&mut self, url: &str, headers: &[(&str, &str)], body: &[u8])->Result<Vec<u8>,SimpleHttpError> {
+        let request = self.prepare_request(url, headers, Some(body), Method::PUT)?;
+        let response = self.client.execute(request)
+            .map_err(|e| SimpleHttpError::new_with_cause("Error sending put",Box::new(e)))?;
+        
+        let response_status = response.status();
+        let response_body = response.bytes()
+            .map_err(|e| SimpleHttpError::new_with_cause("Error decoding put response",Box::new(e)))?
+            .to_vec();
+        if !response_status.is_success() {
+            return Err(SimpleHttpError::new(&format!("Error status code: {}\n body: {}",response_status.as_u16(), from_utf8(&response_body).unwrap())))
+        }            
+        Ok(response_body)        
     }
 
     fn get(&mut self, url: &str, headers: &[(&str, &str)])->Result<Vec<u8>, SimpleHttpError> {
@@ -53,6 +82,16 @@ impl SimpleHttpClient for SimpleHttpClientReqwest {
             .map_err(|e| SimpleHttpError::new_with_cause("Error sending get",Box::new(e)))?
             .bytes()
             .map_err(|e| SimpleHttpError::new_with_cause("Error decoding get response",Box::new(e)))?
+            .to_vec();
+        Ok(result)
+    }
+
+    fn delete(&mut self, url: &str, headers: &[(&str, &str)])->Result<Vec<u8>, SimpleHttpError> {
+        let request = self.prepare_request(url, &headers, None, Method::DELETE)?;
+        let result = self.client.execute(request)
+            .map_err(|e| SimpleHttpError::new_with_cause("Error sending delete",Box::new(e)))?
+            .bytes()
+            .map_err(|e| SimpleHttpError::new_with_cause("Error decoding delete response",Box::new(e)))?
             .to_vec();
         Ok(result)
     }

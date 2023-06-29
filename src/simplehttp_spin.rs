@@ -35,6 +35,27 @@ impl SimpleHttpClient for SimpleHttpClientSpin {
         Ok(result.to_vec())
     }
 
+    fn patch(&mut self, uri: &str, headers: &[(&str, &str)], body: &[u8])->Result<Vec<u8>,SimpleHttpError> {
+        println!("Patching uri: {}",uri);
+        let request = SimpleHttpClientSpin::prepare_request(uri,headers,Some(body.to_vec()),Method::POST)?;
+        let mut res = spin_sdk::http::send(
+            request
+        ).map_err(|e|SimpleHttpError::new_with_cause("Error patching", Box::new(e)))?;
+        let result = res.body_mut().take().unwrap();
+        Ok(result.to_vec())
+    }
+
+    fn put(&mut self, uri: &str, headers: &[(&str, &str)], body: &[u8])->Result<Vec<u8>,SimpleHttpError> {
+        println!("Putting to uri: {}",uri);
+        let request = SimpleHttpClientSpin::prepare_request(uri,headers,Some(body.to_vec()),Method::PUT)?;
+        let mut res = spin_sdk::http::send(
+            request
+        ).map_err(|e|SimpleHttpError::new_with_cause("Error putting", Box::new(e)))?;
+        let result = res.body_mut().take().unwrap();
+        Ok(result.to_vec())
+    }
+
+
     fn get(&mut self, uri: &str, headers: &[(&str, &str)])->Result<Vec<u8>, SimpleHttpError> {
         let request = SimpleHttpClientSpin::prepare_request(uri, headers, None, Method::GET)?;
         let mut res = spin_sdk::http::send(request)
@@ -43,5 +64,12 @@ impl SimpleHttpClient for SimpleHttpClientSpin {
         Ok(result.to_vec())
     }
 
+    fn delete(&mut self, uri: &str, headers: &[(&str, &str)])->Result<Vec<u8>, SimpleHttpError> {
+        let request = SimpleHttpClientSpin::prepare_request(uri, headers, None, Method::DELETE)?;
+        let mut res = spin_sdk::http::send(request)
+            .map_err(|e| SimpleHttpError::new_with_cause("Error calling delete",Box::new(e)))?;
+        let result = res.body_mut().take().unwrap();
+        Ok(result.to_vec())
+    }
 }
 
