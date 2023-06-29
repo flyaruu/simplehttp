@@ -27,7 +27,7 @@ impl SimpleHttpClient for SimpleHttpClientSpin {
 
     fn post(&mut self, uri: &str, headers: &[(&str, &str)], body: &[u8])->Result<Vec<u8>,SimpleHttpError> {
         println!("Posting to uri: {}",uri);
-        let request = SimpleHttpClientSpin::prepare_request(uri,headers,Some(body),Method::POST)?;
+        let request = SimpleHttpClientSpin::prepare_request(uri,headers,Some(body.to_vec()),Method::POST)?;
         let mut res = spin_sdk::http::send(
             request
         ).map_err(|e|SimpleHttpError::new_with_cause("Error posting", Box::new(e)))?;
