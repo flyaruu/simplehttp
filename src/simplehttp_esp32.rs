@@ -1,6 +1,7 @@
 use embedded_svc::http::{client::*, Headers};
 use embedded_svc::io::Write;
 use esp_idf_svc::http::client::*;
+use log::warn;
 
 use crate::simplehttp::{SimpleHttpClient, SimpleHttpError};
 
@@ -27,11 +28,9 @@ impl EspSimpleHttpClient {
         loop {
             match response.read(&mut body) {
                 Ok(bytes_read) => {
-                    // println!("Bytes read: {}",bytes_read);
                     if bytes_read>0 {
                         output_buffer.extend_from_slice(&body[0..bytes_read]);
                     } else {
-                        // println!("Result:\n{}",from_utf8(&output_buffer).unwrap());
                         return Ok(output_buffer);
                     }
                 },
@@ -42,11 +41,11 @@ impl EspSimpleHttpClient {
 }
 
 impl SimpleHttpClient for EspSimpleHttpClient {
+    
     fn get(&mut self, url: &str, input_headers: &[(&str, &str)])->Result<Vec<u8>, SimpleHttpError> {
-        // println!("Getting url: {}",url);
-        // let mut headers = input_headers.to_vec();
-        // headers.push(("Accept", "application/vnd.kafka.binary.v2+json"));        
-        // let collected_headers: Vec<(&str,&str)> = headers.iter().map(|(k,v)|(k.as_ref(),v.as_ref())).collect();
+        if url.contains("localhost") {
+            warn!("\n\n!!!! Do you really want to use localhost from esp? I doubt that.")
+        }
         let response = self.client
             .request(Method::Get,&url,&input_headers)
             .map_err(|e| SimpleHttpError::new_with_cause("Error createing  get: {}",Box::new(e)))?
@@ -56,10 +55,9 @@ impl SimpleHttpClient for EspSimpleHttpClient {
     }
 
     fn delete(&mut self, url: &str, input_headers: &[(&str, &str)])->Result<Vec<u8>, SimpleHttpError> {
-        // println!("Getting url: {}",url);
-        // let mut headers = input_headers.to_vec();
-        // headers.push(("Accept", "application/vnd.kafka.binary.v2+json"));        
-        // let collected_headers: Vec<(&str,&str)> = headers.iter().map(|(k,v)|(k.as_ref(),v.as_ref())).collect();
+        if url.contains("localhost") {
+            warn!("\n\n!!!! Do you really want to use localhost from esp? I doubt that.")
+        }
         let response = self.client
             .request(Method::Delete,&url,&input_headers)
             .map_err(|e| SimpleHttpError::new_with_cause("Error createing  get: {}",Box::new(e)))?
@@ -70,7 +68,7 @@ impl SimpleHttpClient for EspSimpleHttpClient {
 
     fn put<'a>(&'a mut self, url: &str, input_headers: &[(&str, &str)], data: &[u8])->Result<Vec<u8>,SimpleHttpError> {
         if url.contains("localhost") {
-            println!("\n\n!!!! Do you really want to use localhost from esp? I doubt that.")
+            warn!("\n\n!!!! Do you really want to use localhost from esp? I doubt that.")
         }
         let length_string = format!("{}",data.len());
         let mut headers = input_headers.to_vec();
@@ -87,7 +85,7 @@ impl SimpleHttpClient for EspSimpleHttpClient {
 
     fn post<'a>(&'a mut self, url: &str, input_headers: &[(&str, &str)], data: &[u8])->Result<Vec<u8>,SimpleHttpError> {
         if url.contains("localhost") {
-            println!("\n\n!!!! Do you really want to use localhost from esp? I doubt that.")
+            warn!("\n\n!!!! Do you really want to use localhost from esp? I doubt that.")
         }
         let length_string = format!("{}",data.len());
         let mut headers = input_headers.to_vec();
@@ -104,7 +102,7 @@ impl SimpleHttpClient for EspSimpleHttpClient {
 
     fn patch<'a>(&'a mut self, url: &str, input_headers: &[(&str, &str)], data: &[u8])->Result<Vec<u8>,SimpleHttpError> {
         if url.contains("localhost") {
-            println!("\n\n!!!! Do you really want to use localhost from esp? I doubt that.")
+            warn!("\n\n!!!! Do you really want to use localhost from esp? I doubt that.")
         }
         let length_string = format!("{}",data.len());
         let mut headers = input_headers.to_vec();

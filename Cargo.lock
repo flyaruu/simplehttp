@@ -1638,6 +1638,7 @@ dependencies = [
  "esp-idf-svc",
  "esp-idf-sys",
  "http",
+ "log",
  "reqwest",
  "serde",
  "serde_json",

@@ -1,4 +1,5 @@
 use http::{HeaderName, HeaderValue, Method};
+use log::debug;
 use crate::simplehttp::{SimpleHttpClient, SimpleHttpError};
 pub struct SimpleHttpClientSpin {
 
@@ -8,7 +9,6 @@ impl SimpleHttpClientSpin {
     pub fn new_spin()->Box<dyn SimpleHttpClient> {
         Box::new(SimpleHttpClientSpin{})
     }
-
     fn prepare_request( uri: &str, headers: &[(&str, &str)], body: Option<Vec<u8>>, method: Method)->Result<http::Request<Option<bytes::Bytes>>,SimpleHttpError> {
         let mut request_builder = http::Request::builder()
             .method(method)
@@ -26,7 +26,7 @@ impl SimpleHttpClientSpin {
 impl SimpleHttpClient for SimpleHttpClientSpin {
 
     fn post(&mut self, uri: &str, headers: &[(&str, &str)], body: &[u8])->Result<Vec<u8>,SimpleHttpError> {
-        println!("Posting to uri: {}",uri);
+        debug!("Posting to uri: {}",uri);
         let request = SimpleHttpClientSpin::prepare_request(uri,headers,Some(body.to_vec()),Method::POST)?;
         let mut res = spin_sdk::http::send(
             request
@@ -36,7 +36,7 @@ impl SimpleHttpClient for SimpleHttpClientSpin {
     }
 
     fn patch(&mut self, uri: &str, headers: &[(&str, &str)], body: &[u8])->Result<Vec<u8>,SimpleHttpError> {
-        println!("Patching uri: {}",uri);
+        debug!("Patching uri: {}",uri);
         let request = SimpleHttpClientSpin::prepare_request(uri,headers,Some(body.to_vec()),Method::POST)?;
         let mut res = spin_sdk::http::send(
             request
@@ -46,7 +46,7 @@ impl SimpleHttpClient for SimpleHttpClientSpin {
     }
 
     fn put(&mut self, uri: &str, headers: &[(&str, &str)], body: &[u8])->Result<Vec<u8>,SimpleHttpError> {
-        println!("Putting to uri: {}",uri);
+        debug!("Putting to uri: {}",uri);
         let request = SimpleHttpClientSpin::prepare_request(uri,headers,Some(body.to_vec()),Method::PUT)?;
         let mut res = spin_sdk::http::send(
             request
