@@ -36,7 +36,7 @@ impl Error for SimpleHttpError {
     }
 
 }
-pub trait SimpleHttpClient {
+pub trait SimpleHttpClient: Send {
     // fn post(&mut self,  url: &str, headers: &mut Vec<(&str, &str)>, data: Vec<u8>)->Result<Vec<u8>,RedPandaError>;
     fn post(&mut self, url: &str, headers: &[(&str, &str)], data: &[u8])->Result<Vec<u8>,SimpleHttpError>;
     fn put(&mut self, url: &str, headers: &[(&str, &str)], data: &[u8])->Result<Vec<u8>,SimpleHttpError>;
