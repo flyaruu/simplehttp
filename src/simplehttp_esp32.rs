@@ -40,6 +40,9 @@ impl EspSimpleHttpClient {
     }
 }
 
+
+unsafe impl Send for EspSimpleHttpClient {}
+
 impl SimpleHttpClient for EspSimpleHttpClient {
     
     fn get(&mut self, url: &str, input_headers: &[(&str, &str)])->Result<Vec<u8>, SimpleHttpError> {
