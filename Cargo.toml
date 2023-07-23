@@ -35,6 +35,7 @@ log = "0.4.18"
 
 [patch.crates-io]
 esp-idf-hal = { git = "https://github.com/esp-rs/esp-idf-hal" }
+esp-idf-svc = { git = "https://github.com/esp-rs/esp-idf-svc" }
 
 [features]
 reqwest = ["dep:reqwest"]
