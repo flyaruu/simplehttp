@@ -1,7 +1,7 @@
 use embedded_svc::http::{client::*, Headers};
 use embedded_svc::io::Write;
 use esp_idf_svc::http::client::*;
-use log::warn;
+use log::{warn, info};
 
 use crate::simplehttp::{SimpleHttpClient, SimpleHttpError};
 
@@ -9,20 +9,32 @@ pub fn new_esp_http()->Box<dyn SimpleHttpClient> {
     Box::new(EspSimpleHttpClient::new().unwrap())
 }
 
+pub fn new_esp_http_debug()->Box<dyn SimpleHttpClient> {
+    Box::new(EspSimpleHttpClient::new_debug().unwrap())
+}
+
+
 pub struct EspSimpleHttpClient {
-    client: Client<EspHttpConnection>
+    client: Client<EspHttpConnection>,
+    debug: bool,
 }
 impl EspSimpleHttpClient {
+    pub fn new_debug()->Result<EspSimpleHttpClient,SimpleHttpError> {
+        let mut instance = Self::new()?;
+        instance.debug = true;
+        Ok(instance)
+    }
     pub fn new()->Result<EspSimpleHttpClient,SimpleHttpError> {
         let client = Client::wrap(EspHttpConnection::new(&Configuration {
             crt_bundle_attach: Some(esp_idf_sys::esp_crt_bundle_attach),
             ..Default::default()
         }).map_err(|_| SimpleHttpError::new("Error creating http client"))?);
-        Ok(EspSimpleHttpClient{client})
+        Ok(EspSimpleHttpClient{client, debug: false})
     }
 
     pub fn read_response(mut response: Response<&mut EspHttpConnection>)->Result<Vec<u8>,SimpleHttpError> {
-        let size = response.content_len().ok_or(SimpleHttpError::new("Error reading content"))? as usize;
+        let size = response.content_len()
+            .ok_or(SimpleHttpError::new("Error reading content length"))? as usize;
         let mut body = [0_u8; 3048];
         let mut output_buffer: Vec<u8> = Vec::with_capacity(size);
         loop {
@@ -49,9 +61,12 @@ impl SimpleHttpClient for EspSimpleHttpClient {
         if url.contains("localhost") {
             warn!("\n\n!!!! Do you really want to use localhost from esp? I doubt that.")
         }
+        if self.debug {
+            info!("Calling GET {} {:?}",&url, input_headers);
+        }
         let response = self.client
             .request(Method::Get,&url,&input_headers)
-            .map_err(|e| SimpleHttpError::new_with_cause("Error createing  get: {}",Box::new(e)))?
+            .map_err(|e| SimpleHttpError::new_with_cause("Error creating  get: {}",Box::new(e)))?
             .submit()
             .map_err(|e| SimpleHttpError::new_with_cause("Error connecting",Box::new(e)))?;
         Self::read_response(response)
@@ -60,6 +75,9 @@ impl SimpleHttpClient for EspSimpleHttpClient {
     fn delete(&mut self, url: &str, input_headers: &[(&str, &str)])->Result<Vec<u8>, SimpleHttpError> {
         if url.contains("localhost") {
             warn!("\n\n!!!! Do you really want to use localhost from esp? I doubt that.")
+        }
+        if self.debug {
+            info!("Calling DELETE {} {:?}",&url, input_headers);
         }
         let response = self.client
             .request(Method::Delete,&url,&input_headers)
@@ -73,6 +91,11 @@ impl SimpleHttpClient for EspSimpleHttpClient {
         if url.contains("localhost") {
             warn!("\n\n!!!! Do you really want to use localhost from esp? I doubt that.")
         }
+        if self.debug {
+            info!("Calling PUT {} {:?}",&url, input_headers);
+            // todo: write body as well
+        }
+
         let length_string = format!("{}",data.len());
         let mut headers = input_headers.to_vec();
         headers.push(("Content-Length",&length_string));        
@@ -90,6 +113,11 @@ impl SimpleHttpClient for EspSimpleHttpClient {
         if url.contains("localhost") {
             warn!("\n\n!!!! Do you really want to use localhost from esp? I doubt that.")
         }
+        if self.debug {
+            info!("Calling POST {} {:?}",&url, input_headers);
+            // todo: write body as well
+        }
+
         let length_string = format!("{}",data.len());
         let mut headers = input_headers.to_vec();
         headers.push(("Content-Length",&length_string));        
@@ -107,6 +135,11 @@ impl SimpleHttpClient for EspSimpleHttpClient {
         if url.contains("localhost") {
             warn!("\n\n!!!! Do you really want to use localhost from esp? I doubt that.")
         }
+        if self.debug {
+            info!("Calling PATCH {} {:?}",&url, input_headers);
+            // todo: write body as well
+        }
+
         let length_string = format!("{}",data.len());
         let mut headers = input_headers.to_vec();
         headers.push(("Content-Length",&length_string));        
