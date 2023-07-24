@@ -95,6 +95,16 @@ impl SimpleHttpClient for SimpleHttpClientReqwest {
             .to_vec();
         Ok(result)
     }
+
+    fn head(&mut self, url: &str, headers: &[(&str, &str)])->Result<Vec<u8>, SimpleHttpError> {
+        let request = self.prepare_request(url, &headers, None, Method::HEAD)?;
+        let result = self.client.execute(request)
+            .map_err(|e| SimpleHttpError::new_with_cause("Error sending head",Box::new(e)))?
+            .bytes()
+            .map_err(|e| SimpleHttpError::new_with_cause("Error decoding head response",Box::new(e)))?
+            .to_vec();
+        Ok(result)
+    }
 }
 
 

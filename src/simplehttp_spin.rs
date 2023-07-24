@@ -71,5 +71,13 @@ impl SimpleHttpClient for SimpleHttpClientSpin {
         let result = res.body_mut().take().unwrap();
         Ok(result.to_vec())
     }
+
+    fn head(&mut self, uri: &str, headers: &[(&str, &str)])->Result<Vec<u8>, SimpleHttpError> {
+        let request = SimpleHttpClientSpin::prepare_request(uri, headers, None, Method::HEAD)?;
+        let mut res = spin_sdk::http::send(request)
+            .map_err(|e| SimpleHttpError::new_with_cause("Error calling head",Box::new(e)))?;
+        let result = res.body_mut().take().unwrap();
+        Ok(result.to_vec())
+    }
 }
 

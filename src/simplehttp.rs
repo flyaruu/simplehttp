@@ -43,6 +43,5 @@ pub trait SimpleHttpClient: Send {
     fn get(&mut self, url: &str, headers: &[(&str, &str)])->Result<Vec<u8>, SimpleHttpError>;
     fn head(&mut self, url: &str, headers: &[(&str, &str)])->Result<Vec<u8>, SimpleHttpError>;
     fn delete(&mut self, url: &str, headers: &[(&str, &str)])->Result<Vec<u8>, SimpleHttpError>;
-
 }
 
