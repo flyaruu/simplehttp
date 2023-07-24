@@ -32,7 +32,7 @@ impl EspSimpleHttpClient {
         Ok(EspSimpleHttpClient{client, debug: false})
     }
 
-    pub fn read_response(mut response: Response<&mut EspHttpConnection>)->Result<Vec<u8>,SimpleHttpError> {
+    fn read_response(mut response: Response<&mut EspHttpConnection>)->Result<Vec<u8>,SimpleHttpError> {
         let size = response.content_len()
             .ok_or(SimpleHttpError::new("Error reading content length"))? as usize;
         let mut body = [0_u8; 3048];
@@ -50,6 +50,16 @@ impl EspSimpleHttpClient {
             };
         }
     }
+
+    fn check_debug_request(&self, method: Method, url: &str, input_headers: &[(&str,&str)], body: Option<&[u8]>) {
+        if url.contains("localhost") {
+            warn!("\n\n!!!! Do you really want to use localhost from esp? I doubt that.")
+        }
+        if self.debug {
+            info!("Calling {:?} {} {:?}",method, &url, input_headers);
+            // todo: debug request body
+        }        
+    }
 }
 
 
@@ -58,13 +68,8 @@ unsafe impl Send for EspSimpleHttpClient {}
 impl SimpleHttpClient for EspSimpleHttpClient {
     
     fn get(&mut self, url: &str, input_headers: &[(&str, &str)])->Result<Vec<u8>, SimpleHttpError> {
-        if url.contains("localhost") {
-            warn!("\n\n!!!! Do you really want to use localhost from esp? I doubt that.")
-        }
-        if self.debug {
-            info!("Calling GET {} {:?}",&url, input_headers);
-        }
-        let response = self.client
+        self.check_debug_request(Method::Get, url, input_headers, None);
+        let mut response = self.client
             .request(Method::Get,&url,&input_headers)
             .map_err(|e| SimpleHttpError::new_with_cause("Error creating  get: {}",Box::new(e)))?
             .submit()
@@ -72,13 +77,17 @@ impl SimpleHttpClient for EspSimpleHttpClient {
         Self::read_response(response)
     }
 
+    fn head(&mut self, url: &str, input_headers: &[(&str, &str)])->Result<Vec<u8>, SimpleHttpError> {
+        self.check_debug_request(Method::Head, url, input_headers, None);
+        let response = self.client
+            .request(Method::Head,&url,&input_headers)
+            .map_err(|e| SimpleHttpError::new_with_cause("Error creating head: {}",Box::new(e)))?
+            .submit()
+            .map_err(|e| SimpleHttpError::new_with_cause("Error connecting",Box::new(e)))?;
+        Self::read_response(response)
+    }    
     fn delete(&mut self, url: &str, input_headers: &[(&str, &str)])->Result<Vec<u8>, SimpleHttpError> {
-        if url.contains("localhost") {
-            warn!("\n\n!!!! Do you really want to use localhost from esp? I doubt that.")
-        }
-        if self.debug {
-            info!("Calling DELETE {} {:?}",&url, input_headers);
-        }
+        self.check_debug_request(Method::Delete, url, input_headers, None);
         let response = self.client
             .request(Method::Delete,&url,&input_headers)
             .map_err(|e| SimpleHttpError::new_with_cause("Error createing  get: {}",Box::new(e)))?
@@ -88,14 +97,7 @@ impl SimpleHttpClient for EspSimpleHttpClient {
     }
 
     fn put<'a>(&'a mut self, url: &str, input_headers: &[(&str, &str)], data: &[u8])->Result<Vec<u8>,SimpleHttpError> {
-        if url.contains("localhost") {
-            warn!("\n\n!!!! Do you really want to use localhost from esp? I doubt that.")
-        }
-        if self.debug {
-            info!("Calling PUT {} {:?}",&url, input_headers);
-            // todo: write body as well
-        }
-
+        self.check_debug_request(Method::Put, url, input_headers, Some(data));
         let length_string = format!("{}",data.len());
         let mut headers = input_headers.to_vec();
         headers.push(("Content-Length",&length_string));        
@@ -110,13 +112,7 @@ impl SimpleHttpClient for EspSimpleHttpClient {
     }
 
     fn post<'a>(&'a mut self, url: &str, input_headers: &[(&str, &str)], data: &[u8])->Result<Vec<u8>,SimpleHttpError> {
-        if url.contains("localhost") {
-            warn!("\n\n!!!! Do you really want to use localhost from esp? I doubt that.")
-        }
-        if self.debug {
-            info!("Calling POST {} {:?}",&url, input_headers);
-            // todo: write body as well
-        }
+        self.check_debug_request(Method::Post, url, input_headers, Some(data));
 
         let length_string = format!("{}",data.len());
         let mut headers = input_headers.to_vec();
