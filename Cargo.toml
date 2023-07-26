@@ -28,9 +28,10 @@ bytes = {version="1", optional=true}
 # General-purpose crate with common HTTP types.
 http = {version="0.2", optional=true}
 # The Spin SDK.
-spin-sdk = { git = "https://github.com/fermyon/spin", tag = "v1.4.1", optional=true }
+spin-sdk = { git = "https://github.com/fermyon/spin", tag = "v1.4.1", optional=true, version="1.4.1" }
 # Crate that generates Rust Wasm bindings from a WebAssembly interface.
-wit-bindgen-rust = { git = "https://github.com/bytecodealliance/wit-bindgen", rev = "cb871cfa1ee460b51eb1d144b175b9aab9c50aba", optional=true }
+# Don't think I need this?
+# wit-bindgen-rust = { git = "https://github.com/bytecodealliance/wit-bindgen", rev = "cb871cfa1ee460b51eb1d144b175b9aab9c50aba", optional=true }
 log = "0.4.18"
 
 [patch.crates-io]
@@ -40,7 +41,7 @@ esp-idf-svc = { git = "https://github.com/esp-rs/esp-idf-svc" }
 [features]
 reqwest = ["dep:reqwest"]
 esp32 = ["dep:esp-idf-svc", "dep:esp-idf-hal", "dep:esp-idf-sys", "dep:embedded-svc", "dep:embedded-hal"]
-spin = ["dep:anyhow","dep:bytes","dep:http","dep:spin-sdk","dep:wit-bindgen-rust"]
+spin = ["dep:anyhow","dep:bytes","dep:http","dep:spin-sdk"]
 
 [unstable]
 build-std = ["std", "panic_abort"]
