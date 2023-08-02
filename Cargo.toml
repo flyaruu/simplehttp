@@ -1,6 +1,6 @@
 [package]
 name = "simplehttp"
-version = "0.0.1"
+version = "0.0.2"
 edition = "2021"
 license = "Apache-2.0"
 description = "Simple (and very immature) sync http client. Intended to have multiple implementations abstracting away API differences between platforms"
