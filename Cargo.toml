@@ -28,7 +28,7 @@ bytes = {version="1", optional=true}
 # General-purpose crate with common HTTP types.
 http = {version="0.2", optional=true}
 # The Spin SDK.
-spin-sdk = { git = "https://github.com/fermyon/spin", tag = "v1.4.1", optional=true, version="0.0.0" }
+spin-sdk = { git = "https://github.com/fermyon/spin", tag = "v1.4.1", optional=true }
 # Crate that generates Rust Wasm bindings from a WebAssembly interface.
 # Don't think I need this?
 # wit-bindgen-rust = { git = "https://github.com/bytecodealliance/wit-bindgen", rev = "cb871cfa1ee460b51eb1d144b175b9aab9c50aba", optional=true }

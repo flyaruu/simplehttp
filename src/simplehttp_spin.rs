@@ -35,6 +35,17 @@ impl SimpleHttpClient for SimpleHttpClientSpin {
         Ok(result.to_vec())
     }
 
+
+    fn get_with_body(&mut self, url: &str, headers: &[(&str, &str)], body: &[u8])->Result<Vec<u8>,SimpleHttpError> {
+        debug!("Posting to uri: {}",url);
+        let request = SimpleHttpClientSpin::prepare_request(url,headers,Some(body.to_vec()),Method::GET)?;
+        let mut res = spin_sdk::http::send(
+            request
+        ).map_err(|e|SimpleHttpError::new_with_cause("Error posting", Box::new(e)))?;
+        let result = res.body_mut().take().unwrap();
+        Ok(result.to_vec())
+    }
+
     fn patch(&mut self, uri: &str, headers: &[(&str, &str)], body: &[u8])->Result<Vec<u8>,SimpleHttpError> {
         debug!("Patching uri: {}",uri);
         let request = SimpleHttpClientSpin::prepare_request(uri,headers,Some(body.to_vec()),Method::POST)?;
@@ -79,5 +90,6 @@ impl SimpleHttpClient for SimpleHttpClientSpin {
         let result = res.body_mut().take().unwrap();
         Ok(result.to_vec())
     }
+
 }
 

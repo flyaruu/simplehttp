@@ -77,6 +77,22 @@ impl SimpleHttpClient for EspSimpleHttpClient {
         Self::read_response(response)
     }
 
+    fn get_with_body<'a>(&'a mut self, url: &str, input_headers: &[(&str, &str)], data: &[u8])->Result<Vec<u8>,SimpleHttpError> {
+        self.check_debug_request(Method::Post, url, input_headers, Some(data));
+
+        let length_string = format!("{}",data.len());
+        let mut headers = input_headers.to_vec();
+        headers.push(("Content-Length",&length_string));        
+        let collected: Vec<(&str,&str)> = headers.iter().map(|(k,v)|(k.as_ref(),v.as_ref())).collect();
+        let mut get_request: Request<&mut EspHttpConnection> = self.client
+            .request(Method::Get,url,&collected)
+            .map_err(|e| SimpleHttpError::new_with_cause("Error posting url",Box::new(e)))?;
+        get_request.write_all(&data).map_err(|e| SimpleHttpError::new_with_cause(&format!("Error getting(with body) url: {:?}",url),Box::new(e)))?;
+        let get_request = get_request.submit()
+                .map_err(|e| SimpleHttpError::new_with_cause("Error sending data",Box::new(e)))?;
+        Self::read_response(get_request)     
+    }
+
     fn head(&mut self, url: &str, input_headers: &[(&str, &str)])->Result<Vec<u8>, SimpleHttpError> {
         self.check_debug_request(Method::Head, url, input_headers, None);
         let response = self.client
@@ -147,5 +163,7 @@ impl SimpleHttpClient for EspSimpleHttpClient {
                 .map_err(|e| SimpleHttpError::new_with_cause("Error sending data",Box::new(e)))?;
         Self::read_response(post_response)     
     }
+
+
 
 }

@@ -46,6 +46,21 @@ impl SimpleHttpClient for SimpleHttpClientReqwest {
         Ok(response_body)        
     }
 
+    fn get_with_body<'a>(&'a mut self, url: &str, headers: &[(&str, &str)], body: &[u8])->Result<Vec<u8>,SimpleHttpError> {
+        let request = self.prepare_request(url, headers, Some(body), Method::GET)?;
+        let response = self.client.execute(request)
+            .map_err(|e| SimpleHttpError::new_with_cause("Error sending GET with body",Box::new(e)))?;
+        
+        let response_status = response.status();
+        let response_body = response.bytes()
+            .map_err(|e| SimpleHttpError::new_with_cause("Error decoding GET with body response",Box::new(e)))?
+            .to_vec();
+        if !response_status.is_success() {
+            return Err(SimpleHttpError::new(&format!("Error status code: {}\n body: {}",response_status.as_u16(), from_utf8(&response_body).unwrap())))
+        }            
+        Ok(response_body)        
+    }
+
     fn patch(&mut self, url: &str, headers: &[(&str, &str)], body: &[u8])->Result<Vec<u8>,SimpleHttpError> {
         let request = self.prepare_request(url, headers, Some(body), Method::PATCH)?;
         let response = self.client.execute(request)
