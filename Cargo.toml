@@ -4,6 +4,8 @@ version = "0.0.1"
 edition = "2021"
 license = "Apache-2.0"
 description = "Simple (and very immature) sync http client. Intended to have multiple implementations abstracting away API differences between platforms"
+authors = ["Frank Lyaruu <flyaruu@gmail.com>"]
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
@@ -33,6 +35,7 @@ spin-sdk = { git = "https://github.com/fermyon/spin", tag = "v1.4.1", optional=t
 # Don't think I need this?
 # wit-bindgen-rust = { git = "https://github.com/bytecodealliance/wit-bindgen", rev = "cb871cfa1ee460b51eb1d144b175b9aab9c50aba", optional=true }
 log = "0.4.18"
+thiserror = "1.0.44"
 
 [patch.crates-io]
 esp-idf-hal = { git = "https://github.com/esp-rs/esp-idf-hal" }

@@ -2,7 +2,6 @@ use http::{HeaderName, HeaderValue, Method};
 use log::debug;
 use crate::simplehttp::{SimpleHttpClient, SimpleHttpError};
 pub struct SimpleHttpClientSpin {
-
 }
 
 impl SimpleHttpClientSpin {

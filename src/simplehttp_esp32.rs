@@ -51,7 +51,7 @@ impl EspSimpleHttpClient {
         }
     }
 
-    fn check_debug_request(&self, method: Method, url: &str, input_headers: &[(&str,&str)], body: Option<&[u8]>) {
+    fn check_debug_request(&self, method: Method, url: &str, input_headers: &[(&str,&str)], _body: Option<&[u8]>) {
         if url.contains("localhost") {
             warn!("\n\n!!!! Do you really want to use localhost from esp? I doubt that.")
         }
@@ -69,7 +69,7 @@ impl SimpleHttpClient for EspSimpleHttpClient {
     
     fn get(&mut self, url: &str, input_headers: &[(&str, &str)])->Result<Vec<u8>, SimpleHttpError> {
         self.check_debug_request(Method::Get, url, input_headers, None);
-        let mut response = self.client
+        let response = self.client
             .request(Method::Get,&url,&input_headers)
             .map_err(|e| SimpleHttpError::new_with_cause("Error creating  get: {}",Box::new(e)))?
             .submit()
