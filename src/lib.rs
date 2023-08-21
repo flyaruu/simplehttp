@@ -9,3 +9,5 @@ pub mod simplehttp_esp32;
 #[cfg(feature = "spin")]
 pub mod simplehttp_spin;
 
+#[cfg(feature = "fastly")]
+pub mod simplehttp_fastly;

@@ -24,21 +24,6 @@ impl SimpleHttpError {
 }
 
 
-// impl Error for SimpleHttpError {
-//     fn source(&self) -> Option<&(dyn Error + 'static)> {
-//         self.parent.as_deref()
-//     }
-
-//     fn description(&self) -> &str {
-//         "description() is deprecated; use Display"
-//     }
-
-//     fn cause(&self) -> Option<&dyn Error> {
-//         self.source()
-//     }
-
-// }
-
 #[derive(Debug)]
 pub struct HttpResponse {
     pub status_code: u16,

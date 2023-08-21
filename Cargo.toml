@@ -12,6 +12,8 @@ authors = ["Frank Lyaruu <flyaruu@gmail.com>"]
 base64 = "0.21.0"
 serde = { version = "1.0.160", features = ["derive"] }
 serde_json = "1.0.95"
+
+# Reqwest
 reqwest = { version = "0.11", features = ["json","blocking"], optional=true}
 
 # Esp32:
@@ -21,6 +23,8 @@ esp-idf-sys = { version = "0.33.1", optional=true }
 embedded-svc = { version = "0.25.0", optional=true }
 embedded-hal = { version = "1.0.0-alpha.10", optional=true  }
 
+# Fastly (WASM)
+fastly = { version="0.9.4", optional=true }
 
 # Spin (WASM)
 # Useful crate to handle errors.
@@ -45,7 +49,7 @@ esp-idf-svc = { git = "https://github.com/esp-rs/esp-idf-svc" }
 reqwest = ["dep:reqwest"]
 esp32 = ["dep:esp-idf-svc", "dep:esp-idf-hal", "dep:esp-idf-sys", "dep:embedded-svc", "dep:embedded-hal"]
 spin = ["dep:anyhow","dep:bytes","dep:http","dep:spin-sdk"]
-
+fastly = ["dep:fastly"]
 [unstable]
 build-std = ["std", "panic_abort"]
 build-std-features = ["panic_immediate_abort"]

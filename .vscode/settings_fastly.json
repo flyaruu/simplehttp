@@ -1,0 +1,6 @@
+{
+    "rust-analyzer.cargo.features": [
+        "fastly"
+    ],
+    "rust-analyzer.cargo.target": "wasm32-wasi"    
+}

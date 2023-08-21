@@ -9,6 +9,8 @@ jobs:
       # Spin (WASM)
       - run: rustup target add wasm32-wasi
       - run: cargo build --features spin --target wasm32-wasi
+      # Fastly (WASM)
+      - run: cargo build --features fastly --target wasm32-wasi
       # ESP32C3:
       - run: sudo apt update
       - run: sudo apt install python3-venv
