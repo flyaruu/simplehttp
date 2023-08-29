@@ -32,10 +32,6 @@ runner = "espflash --monitor" # Select this runner for espflash v1.x.x
 rustflags = ["-C", "default-linker-libraries","--cfg", "espidf_time64"]
 #build-std = ["std", "panic_abort"]
 
-[unstable]
-
-#build-std-features = ["panic_immediate_abort"] # Required for older ESP-IDF versions without a realpath implementation
-
 [env]
 # Note: these variables are not used when using pio builder (`cargo build --features pio`)
 # Builds against ESP-IDF stable (v4.4)
