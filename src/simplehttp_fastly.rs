@@ -1,10 +1,21 @@
+use std::str::from_utf8;
+
 use crate::simplehttp::{SimpleHttpClient, SimpleHttpError, HttpResponse};
 use fastly::{backend::Backend, Request};
-pub struct SimpleHttpClientFastly {}
+use log::info;
+pub struct SimpleHttpClientFastly {
+    backend_name: String,
+}
 
+impl SimpleHttpClientFastly {
+    pub fn new(backend_name: &str)->SimpleHttpClientFastly {
+        SimpleHttpClientFastly { backend_name: backend_name.to_owned() }
+    }
+}
 impl SimpleHttpClient for SimpleHttpClientFastly {
     fn custom(&mut self, method: crate::simplehttp::Method, url: &str, headers: &[(&str, &str)], body: Option<&[u8]>)->Result<crate::simplehttp::HttpResponse,crate::simplehttp::SimpleHttpError> {
             // Create a new request.
+        println!("Coming!");
         let mut request = match method {
             crate::simplehttp::Method::Options =>  Request::options(url),
             crate::simplehttp::Method::Get => Request::get(url),
@@ -20,11 +31,19 @@ impl SimpleHttpClient for SimpleHttpClientFastly {
             request = request.with_header(*header_name, *header_value)
         }
         if let Some(body) = body {
+            println!("With body. size: {}",body.len());
+            let body_utf = from_utf8(body).unwrap();
+            println!("indeed: >>{}",body_utf);
             request = request.with_body(body)
         }
+        if request.has_body() {
+            println!("I can boogie!");
+        } else {
+            println!("no!");
+        }
+
         
-        let backend = Backend::builder("target", url)
-            .finish()
+        let backend = Backend::from_name(&self.backend_name)
             .map_err(|e| SimpleHttpError::Nested("Error creating backend".to_owned(), Box::new(e)))?;
 
         let response = request.send(backend)
