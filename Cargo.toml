@@ -1,6 +1,6 @@
 [package]
 name = "simplehttp"
-version = "0.0.5"
+version = "0.0.6"
 edition = "2021"
 license = "Apache-2.0"
 description = "Simple (and very immature) sync http client. Intended to have multiple implementations abstracting away API differences between platforms"
@@ -17,11 +17,11 @@ serde_json = "1.0.95"
 reqwest = { version = "0.11", features = ["json","blocking"], optional=true}
 
 # Esp32:
-esp-idf-svc = { version = "0.46.0", features = ["experimental"], optional = true }
-esp-idf-hal = { version="0.41.1", optional=true}
-esp-idf-sys = { version = "0.33.1", optional=true }
-embedded-svc = { version = "0.25.0", optional=true }
-embedded-hal = { version = "1.0.0-alpha.10", optional=true  }
+esp-idf-svc = { version = "0.47.3", features = ["experimental"], optional = true }
+esp-idf-hal = { version="0.42.5", optional=true}
+esp-idf-sys = { version = "0.33.7", optional=true }
+embedded-svc = { version = "0.26.4", optional=true }
+embedded-hal = { version = "1.0.0-rc.1", optional=true  }
 
 # Fastly (WASM)
 fastly = { version="0.9.4", optional=true }
@@ -42,8 +42,8 @@ log = "0.4.18"
 thiserror = "1.0.44"
 
 [patch.crates-io]
-esp-idf-hal = { git = "https://github.com/esp-rs/esp-idf-hal" }
-esp-idf-svc = { git = "https://github.com/esp-rs/esp-idf-svc" }
+#esp-idf-hal = { git = "https://github.com/esp-rs/esp-idf-hal" }
+#esp-idf-svc = { git = "https://github.com/esp-rs/esp-idf-svc" }
 
 [features]
 reqwest = ["dep:reqwest"]
